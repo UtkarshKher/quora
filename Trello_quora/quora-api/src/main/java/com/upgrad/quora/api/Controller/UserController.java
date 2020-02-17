@@ -27,8 +27,6 @@ import java.util.UUID;
 @RequestMapping("/")
 public class UserController {
 
-    @Autowired
-
     @RequestMapping(path = "/user/signup", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupUserResponse> userSignUp(SignupUserRequest signupUserRequest) throws SignUpRestrictedException {
         UserEntity userEntity = new UserEntity();

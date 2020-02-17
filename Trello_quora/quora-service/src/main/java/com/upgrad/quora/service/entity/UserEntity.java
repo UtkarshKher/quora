@@ -9,15 +9,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"userName", "email"})})
 
 @NamedQueries(
         {
-                @NamedQuery(name = "userByUuid", query = "select u from UsersEntity u where u.uuid = :uuid"),
-                @NamedQuery(name = "userByUsername", query = "select u from UsersEntity u where u.userName = :username"),
-                @NamedQuery(name = "userByEmail", query = "select u from UsersEntity u where u.email = :email")
+                @NamedQuery(name = "userByUuid", query = "select u from UserEntity u where u.uuid = :uuid"),
+                @NamedQuery(name = "userByUsername", query = "select u from UserEntity u where u.userName = :username"),
+                @NamedQuery(name = "userByEmail", query = "select u from UserEntity u where u.email = :email")
         }
 )
 public class UserEntity implements Serializable {
@@ -84,6 +85,20 @@ public class UserEntity implements Serializable {
     @Size(max = 30)
     private String contactNumber;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(uuid, that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, uuid);
+    }
 
     public Integer getId() {
         return id;
@@ -190,13 +205,21 @@ public class UserEntity implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", uuid='" + uuid + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", salt='" + salt + '\'' +
+                ", country='" + country + '\'' +
+                ", aboutMe='" + aboutMe + '\'' +
+                ", dob='" + dob + '\'' +
+                ", role='" + role + '\'' +
+                ", contactNumber='" + contactNumber + '\'' +
+                '}';
     }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(this).hashCode();
-    }
-
 }
