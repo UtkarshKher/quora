@@ -10,11 +10,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "user_auth")
 @NamedQueries({
-        @NamedQuery(name = "userAuthTokenByAccessToken", query = "select ut from UserAuthEntity ut where ut.accessToken = :accessToken")
+        @NamedQuery(name = "userAuthTokenByAccessToken", query = "select ut from UserAuthenticationEntity ut where ut.accessToken = :accessToken")
 })
 public class UserAuthenticationEntity {
 
@@ -105,13 +106,28 @@ public class UserAuthenticationEntity {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserAuthenticationEntity that = (UserAuthenticationEntity) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(this).hashCode();
+        return Objects.hash(id);
     }
 
+    @Override
+    public String toString() {
+        return "UserAuthenticationEntity{" +
+                "id=" + id +
+                ", uuid='" + uuid + '\'' +
+                ", user=" + user +
+                ", accessToken='" + accessToken + '\'' +
+                ", expiresAt=" + expiresAt +
+                ", logoutAt=" + logoutAt +
+                ", loginAt=" + loginAt +
+                '}';
+    }
 }
