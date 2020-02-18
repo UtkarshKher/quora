@@ -2,20 +2,21 @@ package com.upgrad.quora.api.Controller;
 
 
 import com.upgrad.quora.api.model.*;
+import com.upgrad.quora.service.business.CommonBusinessService;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthenticationEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -23,6 +24,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/")
 public class QuestionController {
+
+
+    @Autowired
+    private CommonBusinessService commonBusinessService;
 
     @RequestMapping(path = "/question/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(QuestionRequest questionRequest,
@@ -54,19 +59,11 @@ public class QuestionController {
 
     @RequestMapping(path = "/question/all", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getQuestion(QuestionRequest questionRequest,
-                                                           @RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+                                                                     @PathVariable("userId") final String uuid,
+                                                                     @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
 
-        byte[] decoded = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
-        String decodedAuth = new String(decoded);
-        String[] decodedArray = decodedAuth.split(":");
-        UserAuthenticationEntity userAuthenticationEntity = UserBusinessService.authenticateUser(decodedArray[0], decodedArray[1]);
+        UserEntity userEntity = commonBusinessService.getUser(uuid, authorization);
 
-        if(Objects.isNull(userAuthenticationEntity)){
-            throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
-        }else if(Objects.nonNull(userAuthenticationEntity) && userAuthenticationEntity.getLogoutAt() != null){
-            throw new AuthenticationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
-        }
-        UserEntity userEntity = userAuthenticationEntity.getUser();
         List<QuestionEntity> questionEntity = QuestionBusinessService.getAllQuestioons(userEntity);
         List<QuestionDetailsResponse> response = new ArrayList<>();
         for(QuestionEntity question : questionEntity){
