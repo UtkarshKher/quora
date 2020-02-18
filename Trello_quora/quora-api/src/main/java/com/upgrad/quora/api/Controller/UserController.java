@@ -40,7 +40,7 @@ public class UserController {
         userEntity.setEmail(signupUserRequest.getEmailAddress());
         userEntity.setCountry(signupUserRequest.getCountry());
         userEntity.setDob(signupUserRequest.getDob());
-        userEntity.setRole("false");
+        userEntity.setRole("nonadmin");
 
         UserEntity createdUserEntity = UserBusinessService.createUser(userEntity);
         SignupUserResponse signupUserResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
