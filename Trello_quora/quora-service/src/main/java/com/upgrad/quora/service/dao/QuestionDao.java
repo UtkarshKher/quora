@@ -30,6 +30,30 @@ public class QuestionDao {
         }
     }
 
+    public List<QuestionEntity> getAllQuestion() {
+        try {
+            List<QuestionEntity> questionEntities = entityManager.createNamedQuery("Allquestion", QuestionEntity.class).getResultList();
+            return questionEntities;
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public QuestionEntity getQuestion(String uuid) {
+        try {
+            QuestionEntity questionEntity = entityManager.createNamedQuery("questionById", QuestionEntity.class).setParameter("uuid", uuid).getSingleResult();
+            return questionEntity;
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
 
 
+    public void update(QuestionEntity questionEntity) {
+        entityManager.merge(questionEntity);
+    }
+
+    public void deleteQuestion(QuestionEntity questionEntity) {
+        entityManager.remove(questionEntity);
+    }
 }

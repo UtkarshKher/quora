@@ -13,7 +13,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "question")
 @NamedQueries({
-        @NamedQuery(name = "questionByUserId", query = "select qE from QuestionEntity qE where ut.user_id = :user_id")
+        @NamedQuery(name = "questionByUserId", query = "select qE from QuestionEntity qE where ut.user_id = :user_id"),
+        @NamedQuery(name = "questionById", query = "select qE from QuestionEntity qE where ut.uuid = :uuid"),
+        @NamedQuery(name = "Allquestion", query = "select qE from QuestionEntity qE ")
 })
 public class QuestionEntity {
 
