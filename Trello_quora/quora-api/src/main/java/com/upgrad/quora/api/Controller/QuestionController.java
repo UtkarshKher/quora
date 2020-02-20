@@ -40,6 +40,7 @@ public class QuestionController {
         questionEntity.setUser(userEntity);
         questionEntity.setContent(questionRequest.getContent());
         questionEntity.setDate(ZonedDateTime.now());
+        questionEntity.setUuid(UUID.randomUUID().toString());
 
         QuestionEntity questionEntity1 = questionBusinessService.createQuestion(questionEntity);
         QuestionResponse questionResponse = new QuestionResponse().id(questionEntity1.getUuid()).status("Question Created");
