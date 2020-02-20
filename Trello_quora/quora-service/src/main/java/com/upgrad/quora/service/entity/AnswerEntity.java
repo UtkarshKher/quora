@@ -4,15 +4,16 @@ import javax.validation.constraints.NotNull;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "answer")
 @NamedQueries({
         @NamedQuery(name = "answerById", query = "select aE from AnswerEntity aE where aE.uuid = :uuid"),
-        @NamedQuery(name = "answersByQuestionId", query = "select aES from AnswerEntity aE.question_id = :question_id")
+        @NamedQuery(name = "answersByQuestionId", query = "select aES from AnswerEntity aES where aES.questionId = :question_id")
 })
-public class AnswerEntity {
+public class AnswerEntity implements Serializable {
 
     @Id
     @Column(name = "id")
