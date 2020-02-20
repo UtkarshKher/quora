@@ -23,6 +23,18 @@ public class CommonBusinessService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserEntity getUser(final String userUuid, final String authorizationToken) throws UserNotFoundException, AuthorizationFailedException {
 
+        getUserAuthenticationEntity(authorizationToken);
+
+        UserEntity usersEntity = userDao.getUser(userUuid);
+        if (usersEntity == null) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
+        }
+        return usersEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserAuthenticationEntity getUserAuthenticationEntity(final String authorizationToken)throws AuthorizationFailedException {
+
         UserAuthenticationEntity userAuthEntity = userAuthDao.getAuthToken(authorizationToken);
 
         if (userAuthEntity == null) {
@@ -31,10 +43,7 @@ public class CommonBusinessService {
         if (userAuthEntity.getLogoutAt() != null) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
         }
-        UserEntity usersEntity = userDao.getUser(userUuid);
-        if (usersEntity == null) {
-            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
-        }
-        return usersEntity;
+        return userAuthEntity;
     }
+
 }
