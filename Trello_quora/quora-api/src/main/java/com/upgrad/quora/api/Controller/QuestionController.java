@@ -87,15 +87,19 @@ public class QuestionController {
                                                                      @PathVariable("userId") final String uuid,
                                                                      @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
 
-        commonBusinessService.getUser(uuid, authorization);
+        UserEntity  userEntity = commonBusinessService.getUser(uuid, authorization);
 
         QuestionEntity questionEntity = questionBusinessService.findByQuestionId(quesId);
+
         if (Objects.isNull(questionEntity)) {
             throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
         }
+        if(questionEntity.getUser().equals(userEntity)) {
+            throw new AuthorizationFailedException("ATHR-003","Only the question owner can edit the question");
+        }
+
         questionEntity.setContent(questionEditRequest.getContent());
         questionBusinessService.update(questionEntity);
-
         QuestionEditResponse response = new QuestionEditResponse().id(questionEntity.getUuid()).status("QUESTION EDITED");
 
         return new ResponseEntity<QuestionEditResponse>(response, HttpStatus.OK);
