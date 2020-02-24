@@ -18,8 +18,7 @@ public class UserAuthenticationDao {
     public UserAuthenticationEntity getAuthToken(final String authorizationToken) {
 
         try {
-            UserAuthenticationEntity userAuthenticationEntity = entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthenticationEntity.class).setParameter("accessToken", authorizationToken).getSingleResult();
-            return userAuthenticationEntity;
+            return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthenticationEntity.class).setParameter("accessToken", authorizationToken).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
