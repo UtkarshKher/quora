@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordCryptographyProvider {
 
-    private static String SECRET_KEY_ALGORITHM = "PBKDF2WithHmacSHA512";
-    private static int HASHING_ITERATIONS = 1000;
-    private static int HASHING_KEY_LENGTH = 64;
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private String SECRET_KEY_ALGORITHM = "PBKDF2WithHmacSHA512";
+    private int HASHING_ITERATIONS = 1000;
+    private int HASHING_KEY_LENGTH = 64;
+    private final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     /**
      * This method generates Salt and hashed Password
@@ -41,7 +41,7 @@ public class PasswordCryptographyProvider {
      * @param salt     byte array.
      * @return byte array of hashed password.
      */
-    public static String encrypt(final String password, String salt) {
+    public String encrypt(final String password, String salt) {
         return bytesToHex(hashPassword(password.toCharArray(), getBase64DecodedStringAsBytes(salt)));
     }
 
@@ -50,7 +50,7 @@ public class PasswordCryptographyProvider {
      *
      * @return 32 bytes long array
      */
-    private static byte[] generateSaltBytes() {
+    private byte[] generateSaltBytes() {
         final Random random = new SecureRandom();
         byte[] saltBytes = new byte[32];
         random.nextBytes(saltBytes);
@@ -64,7 +64,7 @@ public class PasswordCryptographyProvider {
      * @param salt     byte array.
      * @return byte array of hashed password.
      */
-    private static byte[] hashPassword(final char[] password, final byte[] salt) {
+    private byte[] hashPassword(final char[] password, final byte[] salt) {
         try {
             SecretKeyFactory skf = SecretKeyFactory.getInstance(SECRET_KEY_ALGORITHM);
             PBEKeySpec spec = new PBEKeySpec(password, salt, HASHING_ITERATIONS, HASHING_KEY_LENGTH);
@@ -76,7 +76,7 @@ public class PasswordCryptographyProvider {
         }
     }
 
-    private static String bytesToHex(byte[] bytes) {
+    private String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -86,11 +86,11 @@ public class PasswordCryptographyProvider {
         return new String(hexChars);
     }
 
-    private static String getBase64EncodedBytesAsString(byte bytes[]) {
+    private String getBase64EncodedBytesAsString(byte bytes[]) {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    private static byte[] getBase64DecodedStringAsBytes(String decode) {
+    private byte[] getBase64DecodedStringAsBytes(String decode) {
         return Base64.getDecoder().decode(decode);
     }
 }

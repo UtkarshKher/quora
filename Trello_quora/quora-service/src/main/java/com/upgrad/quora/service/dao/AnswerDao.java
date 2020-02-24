@@ -7,9 +7,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-
-@Repository
+@SuppressWarnings("JpaQueryApiInspection")
+@Repository()
 public class AnswerDao {
+
     @PersistenceContext
     private EntityManager entityManager;
 

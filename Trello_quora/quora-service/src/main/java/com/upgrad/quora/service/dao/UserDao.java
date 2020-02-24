@@ -19,8 +19,7 @@ public class UserDao {
 
     public UserEntity getUser(final String uuid) {
         try {
-            UserEntity user = entityManager.createNamedQuery("userByUuid", UserEntity.class).setParameter("uuid", uuid).getSingleResult();
-            return user;
+           return entityManager.createNamedQuery("userByUuid", UserEntity.class).setParameter("uuid", uuid).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
@@ -29,8 +28,7 @@ public class UserDao {
 
     public UserEntity getUserByUsername(final String username) {
         try {
-            UserEntity user = entityManager.createNamedQuery("userByUsername", UserEntity.class).setParameter("username", username).getSingleResult();
-            return user;
+            return entityManager.createNamedQuery("userByUsername", UserEntity.class).setParameter("username", username).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
@@ -39,8 +37,7 @@ public class UserDao {
 
     public UserEntity getUserByEmail(final String email) {
         try {
-            UserEntity user = entityManager.createNamedQuery("userByEmail", UserEntity.class).setParameter("email", email).getSingleResult();
-            return user;
+            return entityManager.createNamedQuery("userByEmail", UserEntity.class).setParameter("email", email).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }

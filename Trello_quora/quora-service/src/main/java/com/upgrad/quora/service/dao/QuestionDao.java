@@ -23,8 +23,7 @@ public class QuestionDao {
 
     public List<QuestionEntity> getAllQuestion(UserEntity userEntity) {
         try {
-            List<QuestionEntity> questionEntities = entityManager.createNamedQuery("questionByUserId", QuestionEntity.class).setParameter("user_id", userEntity.getUuid()).getResultList();
-            return questionEntities;
+            return entityManager.createNamedQuery("questionByUserId", QuestionEntity.class).setParameter("uuid", userEntity.getUuid()).getResultList();
         } catch (NoResultException nre) {
             return null;
         }
@@ -32,8 +31,7 @@ public class QuestionDao {
 
     public List<QuestionEntity> getAllQuestion() {
         try {
-            List<QuestionEntity> questionEntities = entityManager.createNamedQuery("Allquestion", QuestionEntity.class).getResultList();
-            return questionEntities;
+            return entityManager.createNamedQuery("Allquestion", QuestionEntity.class).getResultList();
         } catch (NoResultException nre) {
             return null;
         }
@@ -41,8 +39,7 @@ public class QuestionDao {
 
     public QuestionEntity getQuestion(String uuid) {
         try {
-            QuestionEntity questionEntity = entityManager.createNamedQuery("questionById", QuestionEntity.class).setParameter("uuid", uuid).getSingleResult();
-            return questionEntity;
+            return entityManager.createNamedQuery("questionById", QuestionEntity.class).setParameter("uuid", uuid).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }

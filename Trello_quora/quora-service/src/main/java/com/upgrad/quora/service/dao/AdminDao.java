@@ -2,7 +2,6 @@ package com.upgrad.quora.service.dao;
 
 
 import com.upgrad.quora.service.entity.UserAuthenticationEntity;
-import com.upgrad.quora.service.entity.UserAuthenticationEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import org.springframework.stereotype.Repository;
 
@@ -33,8 +32,7 @@ public class AdminDao {
     public UserAuthenticationEntity getAuthToken(final String authorizationToken) {
 
         try {
-            UserAuthenticationEntity userAuthEntity = entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthenticationEntity.class).setParameter("accessToken", authorizationToken).getSingleResult();
-            return userAuthEntity;
+            return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthenticationEntity.class).setParameter("accessToken", authorizationToken).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }

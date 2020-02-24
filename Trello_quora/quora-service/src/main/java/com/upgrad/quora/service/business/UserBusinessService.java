@@ -19,18 +19,20 @@ import java.util.UUID;
 public class
 UserBusinessService {
 
-    private static UserDao userDao;
-    private static UserAuthenticationDao userAuthenticationDao;
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private UserAuthenticationDao userAuthenticationDao;
 
 
     @Autowired
-    static
     PasswordCryptographyProvider passwordCryptographyProvider;
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public static UserEntity createUser(UserEntity userEntity) throws SignUpRestrictedException {
-        UserEntity userEntityByName = userDao.getUserByUsername(userEntity.getUserName());
+    public UserEntity createUser(UserEntity userEntity) throws SignUpRestrictedException {
+        userDao.getUserByUsername(userEntity.getUserName());
 
         // To check for the condition username already exists
         if (userDao.getUserByUsername(userEntity.getUserName()) != null) {
@@ -54,7 +56,7 @@ UserBusinessService {
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public static UserAuthenticationEntity authenticateUser(String username, String password) throws AuthenticationFailedException {
+    public UserAuthenticationEntity authenticateUser(String username, String password) throws AuthenticationFailedException {
         UserEntity user = userDao.getUserByUsername(username);
 
         //Username does not exist in DB
@@ -84,7 +86,7 @@ UserBusinessService {
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public static UserAuthenticationEntity signOut(String accessToken) throws SignOutRestrictedException {
+    public UserAuthenticationEntity signOut(String accessToken) throws SignOutRestrictedException {
         UserAuthenticationEntity userAuthenticationEntity = userAuthenticationDao.getAuthToken(accessToken);
         if (userAuthenticationEntity == null) {
             throw new SignOutRestrictedException("SGR-001", "User is not Signed in");

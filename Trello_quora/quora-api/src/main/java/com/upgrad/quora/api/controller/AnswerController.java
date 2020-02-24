@@ -77,8 +77,8 @@ public class AnswerController {
         if (!userAuthenticationEntity.getUser().getUuid().equalsIgnoreCase(answerEntity.getUserId())) {
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
         }
-
         //edit answer
+        answerEntity.setContent(answerEditRequest.getContent());
         AnswerEntity updatedAnswerEntity = answerBusinessService.updateAnswer(answerEntity);
         AnswerResponse answerResponse = new AnswerResponse().id(updatedAnswerEntity.getUuid()).status("ANSWER EDITED");
 

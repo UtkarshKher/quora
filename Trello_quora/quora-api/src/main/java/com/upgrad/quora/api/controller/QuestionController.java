@@ -29,12 +29,11 @@ public class QuestionController {
     @Autowired
     private QuestionBusinessService questionBusinessService;
 
-    @RequestMapping(path = "/question/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(QuestionRequest questionRequest,
-                                                           @PathVariable("userId") final String uuid,
                                                              @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
 
-        UserEntity userEntity = commonBusinessService.getUser(uuid, authorization);
+        UserEntity userEntity = commonBusinessService.getUserAuthenticationEntity(authorization).getUser();
 
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setUser(userEntity);
@@ -47,11 +46,9 @@ public class QuestionController {
         return new ResponseEntity<QuestionResponse>(questionResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = "/question/all", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getQuestion(@PathVariable("userId") final String uuid,
-                                                                     @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
-
-        commonBusinessService.getUser(uuid, authorization);
+    @GetMapping(path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getQuestion(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        commonBusinessService.getUserAuthenticationEntity(authorization);
 
         List<QuestionEntity> questionEntity = questionBusinessService.getAllQuestions();
         List<QuestionDetailsResponse> response = new ArrayList<>();
@@ -59,13 +56,11 @@ public class QuestionController {
             QuestionDetailsResponse questionResponse = new QuestionDetailsResponse().id(question.getUuid()).content(question.getContent());
             response.add(questionResponse);
         }
-
-        return new ResponseEntity<List<QuestionDetailsResponse>>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/question/all/{userId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getQuestion(QuestionRequest questionRequest,
-                                                                     @PathVariable("userId") final String uuid,
+    @GetMapping(path = "/question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getQuestion(@PathVariable("userId") final String uuid,
                                                                      @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
 
         UserEntity userEntity = commonBusinessService.getUser(uuid, authorization);
@@ -77,22 +72,26 @@ public class QuestionController {
             response.add(questionResponse);
         }
 
-        return new ResponseEntity<List<QuestionDetailsResponse>>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/question/edit/{questionId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionEditResponse> getQuestion(@PathVariable("questionId") final String quesId,
-                                                                     @RequestBody QuestionEditRequest questionEditRequest,
-                                                                     @PathVariable("userId") final String uuid,
-                                                                     @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
+    @PutMapping(path = "/question/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionEditResponse> editQuestion(@PathVariable("questionId") final String quesId,
+                                                                      QuestionEditRequest questionEditRequest,
+                                                                     @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, InvalidQuestionException {
 
-        commonBusinessService.getUser(uuid, authorization);
+        UserAuthenticationEntity userAuthenticationEntity = commonBusinessService.getUserAuthenticationEntity(authorization);
 
         QuestionEntity questionEntity = questionBusinessService.findByQuestionId(quesId);
         if (Objects.isNull(questionEntity)) {
             throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
         }
+        if (!userAuthenticationEntity.getUser().getUuid().equalsIgnoreCase(questionEntity.getUuid())) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the question owner can edit the question");
+        }
+
         questionEntity.setContent(questionEditRequest.getContent());
+
         questionBusinessService.update(questionEntity);
 
         QuestionEditResponse response = new QuestionEditResponse().id(questionEntity.getUuid()).status("QUESTION EDITED");
@@ -100,12 +99,11 @@ public class QuestionController {
         return new ResponseEntity<QuestionEditResponse>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/question/delete/{questionId}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @DeleteMapping(path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String quesId,
-                                                            @PathVariable("userId") final String uuid,
-                                                            @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
+                                                            @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, InvalidQuestionException {
 
-        UserEntity userEntity = commonBusinessService.getUser(uuid, authorization);
+        UserEntity userEntity = commonBusinessService.getUserAuthenticationEntity(authorization).getUser();
 
         QuestionEntity questionEntity = questionBusinessService.findByQuestionId(quesId);
         if (Objects.isNull(questionEntity)) {
@@ -116,7 +114,7 @@ public class QuestionController {
 
         QuestionDeleteResponse response = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("QUESTION DELETED");
 
-        return new ResponseEntity<QuestionDeleteResponse>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

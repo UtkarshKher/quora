@@ -26,6 +26,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/")
 public class UserController {
+    @Autowired
+    private UserBusinessService userBusinessService;
 
     @RequestMapping(path = "/user/signup", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupUserResponse> userSignUp(SignupUserRequest signupUserRequest) throws SignUpRestrictedException {
@@ -42,7 +44,7 @@ public class UserController {
         userEntity.setDob(signupUserRequest.getDob());
         userEntity.setRole("nonadmin");
 
-        UserEntity createdUserEntity = UserBusinessService.createUser(userEntity);
+        UserEntity createdUserEntity = userBusinessService.createUser(userEntity);
         SignupUserResponse signupUserResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
         return new ResponseEntity<SignupUserResponse>(signupUserResponse, HttpStatus.CREATED);
     }
@@ -53,7 +55,7 @@ public class UserController {
         byte[] decoded = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
         String decodedAuth = new String(decoded);
         String[] decodedArray = decodedAuth.split(":");
-        UserAuthenticationEntity userAuthenticationEntity = UserBusinessService.authenticateUser(decodedArray[0], decodedArray[1]);
+        UserAuthenticationEntity userAuthenticationEntity = userBusinessService.authenticateUser(decodedArray[0], decodedArray[1]);
         UserEntity userEntity = userAuthenticationEntity.getUser();
         SigninResponse signinResponse = new SigninResponse().id(userAuthenticationEntity.getUuid()).message("SIGNED IN SUCCESSFULLY");
         HttpHeaders headers = new HttpHeaders();
@@ -64,7 +66,7 @@ public class UserController {
 
     @RequestMapping(path = "/user/signout", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignoutResponse> userSignOut(@RequestHeader("authorization") final String authorization) throws SignOutRestrictedException {
-        UserAuthenticationEntity userAuthenticationEntity = UserBusinessService.signOut(authorization);
+        UserAuthenticationEntity userAuthenticationEntity = userBusinessService.signOut(authorization);
         UserEntity userEntity = userAuthenticationEntity.getUser();
         SignoutResponse signoutResponse = new SignoutResponse().id(userEntity.getUuid()).message("SIGNED OUT SUCCESSFULLY");
         return new ResponseEntity<SignoutResponse>(signoutResponse, HttpStatus.OK);
